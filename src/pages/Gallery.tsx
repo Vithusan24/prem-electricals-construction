@@ -1,4 +1,6 @@
 import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+import { ArrowRight, CalendarCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import elec1 from "@/assets/gallery-electrical-1.jpg";
 import elec2 from "@/assets/gallery-electrical-2.jpg";

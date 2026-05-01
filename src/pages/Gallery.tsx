@@ -1,4 +1,6 @@
 import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
+import { ArrowRight, CalendarCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import elec1 from "@/assets/gallery-electrical-1.jpg";
 import elec2 from "@/assets/gallery-electrical-2.jpg";
@@ -134,6 +136,32 @@ const Gallery = () => {
         {visible.length === 0 && (
           <p className="text-center text-muted-foreground py-12">No projects in this category yet.</p>
         )}
+      </section>
+
+      {/* Request a site visit CTA */}
+      <section className="container mx-auto pb-16">
+        <div className="border border-border rounded-lg bg-primary text-primary-foreground p-8 md:p-12 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+          <div className="flex items-start gap-4">
+            <span className="hidden sm:grid h-12 w-12 shrink-0 place-items-center rounded-md bg-accent text-accent-foreground">
+              <CalendarCheck className="h-6 w-6" />
+            </span>
+            <div>
+              <h2 className="font-heading text-2xl md:text-3xl font-bold">
+                Request a Site Visit
+              </h2>
+              <p className="mt-2 text-primary-foreground/80 max-w-xl text-sm md:text-base">
+                Planning your next electrical, plumbing or construction project? Our team will
+                visit your site, assess your requirements and prepare a tailored quotation.
+              </p>
+            </div>
+          </div>
+          <Link
+            to="/contact"
+            className="inline-flex items-center justify-center gap-2 bg-accent text-accent-foreground px-6 py-3 rounded-md font-semibold hover:opacity-90 transition-opacity whitespace-nowrap"
+          >
+            Book a Visit <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
       </section>
     </div>
   );

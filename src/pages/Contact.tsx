@@ -1,15 +1,45 @@
-import { MapPin, Phone, Mail, Globe } from "lucide-react";
+import { MapPin, Phone, Mail, Globe, Send } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { z } from "zod";
+import SocialLinks from "@/components/SocialLinks";
+
+const schema = z.object({
+  name: z.string().trim().min(1, "Name is required").max(100),
+  email: z.string().trim().email("Invalid email").max(255),
+  phone: z.string().trim().min(6, "Phone is required").max(30),
+  subject: z.string().trim().min(1, "Subject is required").max(150),
+  message: z.string().trim().min(1, "Message is required").max(1000),
+});
+
+const initial = { name: "", email: "", phone: "", subject: "", message: "" };
 
 const Contact = () => {
-  const [form, setForm] = useState({ name: "", email: "", message: "" });
+  const [form, setForm] = useState(initial);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
+    const result = schema.safeParse(form);
+    if (!result.success) {
+      const errs: Record<string, string> = {};
+      result.error.issues.forEach((i) => { errs[i.path[0] as string] = i.message; });
+      setErrors(errs);
+      toast.error("Please fix the highlighted fields.");
+      return;
+    }
+    setErrors({});
     toast.success("Thank you! We'll get back to you shortly.");
-    setForm({ name: "", email: "", message: "" });
+    setForm(initial);
   };
+
+  const field = (key: keyof typeof initial) => ({
+    value: form[key],
+    onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+      setForm({ ...form, [key]: e.target.value }),
+  });
+
+  const inputCls = "mt-1 w-full border border-input rounded-md px-3 py-2 bg-background text-sm focus:outline-none focus:ring-2 focus:ring-primary";
 
   return (
     <div>
@@ -22,97 +52,86 @@ const Contact = () => {
         </div>
       </section>
 
-      <section className="container mx-auto py-16 grid lg:grid-cols-2 gap-10">
-        <div>
-          <h2 className="section-title">Get in touch</h2>
-          <div className="section-divider" />
-          <div className="space-y-5">
-            <div className="card-bordered flex gap-4">
-              <span className="h-11 w-11 rounded-md bg-primary text-primary-foreground grid place-items-center shrink-0">
-                <MapPin className="h-5 w-5" />
-              </span>
-              <div>
-                <div className="font-heading font-semibold text-primary">Address</div>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Prem Electricals and Construction Pvt. Ltd.<br />
-                  Kopay Junction, Kopay, Jaffna, Sri Lanka
-                </p>
-              </div>
-            </div>
-            <div className="card-bordered flex gap-4">
-              <span className="h-11 w-11 rounded-md bg-primary text-primary-foreground grid place-items-center shrink-0">
-                <Phone className="h-5 w-5" />
-              </span>
-              <div>
-                <div className="font-heading font-semibold text-primary">Phone</div>
-                <p className="text-sm mt-1 space-x-3">
-                  <a href="tel:+94778048143" className="text-link">+94 77 804 8143</a>
-                  <a href="tel:+94212232676" className="text-link">+94 21 223 2676</a>
-                </p>
-              </div>
-            </div>
-            <div className="card-bordered flex gap-4">
-              <span className="h-11 w-11 rounded-md bg-primary text-primary-foreground grid place-items-center shrink-0">
-                <Mail className="h-5 w-5" />
-              </span>
-              <div>
-                <div className="font-heading font-semibold text-primary">Email</div>
-                <p className="text-sm mt-1 flex flex-col">
-                  <a href="mailto:premelectrical7@gmail.com" className="text-link">premelectrical7@gmail.com</a>
-                  <a href="mailto:premelectricalp@yahoo.com" className="text-link">premelectricalp@yahoo.com</a>
-                </p>
-              </div>
-            </div>
-            <div className="card-bordered flex gap-4">
-              <span className="h-11 w-11 rounded-md bg-primary text-primary-foreground grid place-items-center shrink-0">
-                <Globe className="h-5 w-5" />
-              </span>
-              <div>
-                <div className="font-heading font-semibold text-primary">Website</div>
-                <a href="https://www.prem.lk" className="text-link text-sm">www.prem.lk</a>
-              </div>
-            </div>
+      {/* Info cards */}
+      <section className="container mx-auto py-12 grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        {[
+          { Icon: MapPin, title: "Address", body: "Kopay Junction, Kopay,\nJaffna, Sri Lanka" },
+          { Icon: Phone, title: "Phone", body: "+94 77 804 8143\n+94 21 223 2676" },
+          { Icon: Mail, title: "Email", body: "premelectrical7@gmail.com\npremelectricalp@yahoo.com" },
+          { Icon: Globe, title: "Website", body: "www.prem.lk" },
+        ].map(({ Icon, title, body }) => (
+          <div key={title} className="card-bordered text-center">
+            <span className="mx-auto h-12 w-12 rounded-full bg-primary text-primary-foreground grid place-items-center mb-3">
+              <Icon className="h-5 w-5" />
+            </span>
+            <div className="font-heading font-semibold text-primary">{title}</div>
+            <p className="text-sm text-muted-foreground mt-1 whitespace-pre-line">{body}</p>
           </div>
-        </div>
+        ))}
+      </section>
 
-        <form onSubmit={submit} className="card-bordered space-y-4 self-start">
-          <h2 className="font-heading font-semibold text-xl text-primary">Send us a message</h2>
+      {/* Form + Map */}
+      <section className="container mx-auto pb-16 grid lg:grid-cols-2 gap-8">
+        <form onSubmit={submit} noValidate className="card-bordered space-y-4">
           <div>
-            <label className="text-sm font-medium" htmlFor="name">Name</label>
-            <input
-              id="name"
-              required
-              value={form.name}
-              onChange={(e) => setForm({ ...form, name: e.target.value })}
-              className="mt-1 w-full border border-input rounded-md px-3 py-2 bg-background focus:outline-none focus:ring-2 focus:ring-primary"
-            />
+            <h2 className="font-heading font-semibold text-2xl text-primary">Send us a message</h2>
+            <div className="section-divider" />
           </div>
+
+          <div className="grid sm:grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-medium" htmlFor="name">Name *</label>
+              <input id="name" {...field("name")} className={inputCls} maxLength={100} />
+              {errors.name && <p className="text-xs text-destructive mt-1">{errors.name}</p>}
+            </div>
+            <div>
+              <label className="text-sm font-medium" htmlFor="email">Email *</label>
+              <input id="email" type="email" {...field("email")} className={inputCls} maxLength={255} />
+              {errors.email && <p className="text-xs text-destructive mt-1">{errors.email}</p>}
+            </div>
+            <div>
+              <label className="text-sm font-medium" htmlFor="phone">Phone *</label>
+              <input id="phone" type="tel" {...field("phone")} className={inputCls} maxLength={30} />
+              {errors.phone && <p className="text-xs text-destructive mt-1">{errors.phone}</p>}
+            </div>
+            <div>
+              <label className="text-sm font-medium" htmlFor="subject">Subject *</label>
+              <input id="subject" {...field("subject")} className={inputCls} maxLength={150} />
+              {errors.subject && <p className="text-xs text-destructive mt-1">{errors.subject}</p>}
+            </div>
+          </div>
+
           <div>
-            <label className="text-sm font-medium" htmlFor="email">Email</label>
-            <input
-              id="email"
-              type="email"
-              required
-              value={form.email}
-              onChange={(e) => setForm({ ...form, email: e.target.value })}
-              className="mt-1 w-full border border-input rounded-md px-3 py-2 bg-background focus:outline-none focus:ring-2 focus:ring-primary"
-            />
+            <label className="text-sm font-medium" htmlFor="message">Message *</label>
+            <textarea id="message" rows={5} {...field("message")} className={inputCls} maxLength={1000} />
+            {errors.message && <p className="text-xs text-destructive mt-1">{errors.message}</p>}
           </div>
-          <div>
-            <label className="text-sm font-medium" htmlFor="message">Message</label>
-            <textarea
-              id="message"
-              required
-              rows={5}
-              value={form.message}
-              onChange={(e) => setForm({ ...form, message: e.target.value })}
-              className="mt-1 w-full border border-input rounded-md px-3 py-2 bg-background focus:outline-none focus:ring-2 focus:ring-primary"
-            />
-          </div>
-          <button type="submit" className="w-full bg-accent text-accent-foreground py-3 rounded-md font-medium hover:opacity-90 transition">
-            Send Message
+
+          <button
+            type="submit"
+            className="w-full bg-accent text-accent-foreground py-3 rounded-md font-medium hover:opacity-90 transition flex items-center justify-center gap-2"
+          >
+            <Send className="h-4 w-4" /> Send Message
           </button>
+
+          <div className="pt-3 border-t border-border flex items-center justify-between">
+            <span className="text-xs text-muted-foreground">Follow us</span>
+            <SocialLinks iconClassName="text-muted-foreground" />
+          </div>
         </form>
+
+        <div className="card-bordered p-0 overflow-hidden">
+          <iframe
+            title="Prem Electricals location"
+            src="https://www.google.com/maps?q=Kopay+Junction,+Jaffna,+Sri+Lanka&output=embed"
+            width="100%"
+            height="100%"
+            style={{ border: 0, minHeight: "500px" }}
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+            allowFullScreen
+          />
+        </div>
       </section>
     </div>
   );

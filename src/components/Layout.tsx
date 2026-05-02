@@ -2,12 +2,14 @@ import { Link, NavLink, Outlet } from "react-router-dom";
 import { Menu, X, Zap, Phone, Mail, MapPin } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import SocialLinks from "./SocialLinks";
 
 const nav = [
   { to: "/", label: "Home" },
   { to: "/about", label: "About" },
   { to: "/services", label: "Services" },
   { to: "/projects", label: "Projects" },
+  { to: "/gallery", label: "Gallery" },
   { to: "/contact", label: "Contact" },
 ];
 
@@ -23,7 +25,10 @@ const Layout = () => {
             <span className="flex items-center gap-1.5"><Phone className="h-3 w-3" /> +94 77 804 8143</span>
             <span className="flex items-center gap-1.5"><Mail className="h-3 w-3" /> premelectrical7@gmail.com</span>
           </div>
-          <span className="flex items-center gap-1.5"><MapPin className="h-3 w-3" /> Kopay Junction, Jaffna, Sri Lanka</span>
+          <div className="flex items-center gap-4">
+            <span className="flex items-center gap-1.5"><MapPin className="h-3 w-3" /> Kopay Junction, Jaffna, Sri Lanka</span>
+            <SocialLinks className="gap-2" iconClassName="text-primary-foreground/80" />
+          </div>
         </div>
       </div>
 
@@ -131,8 +136,9 @@ const Layout = () => {
           </div>
         </div>
         <div className="border-t border-primary-foreground/10">
-          <div className="container mx-auto py-4 text-xs text-primary-foreground/70 flex flex-col md:flex-row justify-between gap-2">
+          <div className="container mx-auto py-4 text-xs text-primary-foreground/70 flex flex-col md:flex-row justify-between items-center gap-3">
             <span>© {new Date().getFullYear()} Prem Electricals and Construction Pvt. Ltd.</span>
+            <SocialLinks iconClassName="text-primary-foreground/80" />
             <span>www.prem.lk</span>
           </div>
         </div>
